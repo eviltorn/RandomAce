@@ -2,91 +2,117 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>RandomAce - Balanced Layout</title>
+    <title>RandomAce - Dark Mode Edition</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
+        /* Визначаємо змінні для світлої теми (за замовчуванням) */
+        :root {
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-secondary: #777777;
+            --input-bg: #ffffff;
+            --input-border: #cccccc;
+            --shadow: rgba(0, 0, 0, 0.05);
+            --accent-blue: #007bff;
+        }
+
+        /* Визначаємо змінні для темної теми */
+        body.dark-mode {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-main: #e0e0e0;
+            --text-secondary: #aaaaaa;
+            --input-bg: #2d2d2d;
+            --input-border: #444444;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
         body { 
             font-family: 'Segoe UI', sans-serif; 
             display: flex; flex-direction: column; align-items: center; 
             min-height: 100vh; margin: 0; padding: 20px; 
-            background-color: #f0f2f5; color: #333; 
+            background-color: var(--bg-color); color: var(--text-main); 
+            transition: background-color 0.3s, color 0.3s;
         }
-        .main-container { max-width: 900px; width: 100%; flex: 1; }
-        
-        /* Text inputs */
-        .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .input-section { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        textarea { width: 100%; height: 60px; padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-family: inherit; resize: none; box-sizing: border-box; }
 
-        /* Pool controls */
-        .pools-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .pool-box { background: #fff; padding: 10px; border-radius: 12px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .pool-label { font-size: 11px; font-weight: bold; margin-bottom: 5px; display: block; color: #777; text-transform: uppercase; }
+        .main-container { max-width: 900px; width: 100%; flex: 1; position: relative; }
+
+        /* Кнопка перемикання теми */
+        .theme-toggle {
+            position: absolute; top: -10px; right: 0;
+            padding: 8px 15px; border-radius: 20px;
+            cursor: pointer; border: 1px solid var(--input-border);
+            background: var(--card-bg); color: var(--text-main);
+            font-size: 14px; font-weight: bold; transition: 0.3s;
+        }
+
+        /* Стилі секцій та інпутів */
+        .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .input-section, .pool-box { 
+            background: var(--card-bg); padding: 15px; border-radius: 12px; 
+            box-shadow: 0 4px 10px var(--shadow); transition: 0.3s;
+        }
         
-        .btn { padding: 10px 15px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; transition: 0.3s; margin: 2px; }
-        .btn:hover:not(:disabled) { background: #0056b3; transform: translateY(-1px); }
+        textarea { 
+            width: 100%; height: 60px; padding: 10px; border-radius: 8px; 
+            border: 1px solid var(--input-border); font-family: inherit; resize: none; 
+            box-sizing: border-box; background: var(--input-bg); color: var(--text-main);
+        }
+
+        .pools-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .pool-label { font-size: 11px; font-weight: bold; margin-bottom: 5px; display: block; color: var(--text-secondary); text-transform: uppercase; }
+        
+        /* Кнопки */
+        .btn { padding: 10px 15px; cursor: pointer; background: var(--accent-blue); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; transition: 0.3s; margin: 2px; }
+        .btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
         .btn-spin { background: #ffc107 !important; color: #212529 !important; font-size: 18px !important; padding: 15px 40px !important; display: block; margin: 10px auto !important; width: 250px; }
 
-        /* RESULT AREA (The Card) */
+        /* RESULT AREA */
         #display-area { 
-            width: 100%; min-height: 400px; background: white; border-radius: 20px; 
+            width: 100%; min-height: 400px; background: var(--card-bg); border-radius: 20px; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1); padding: 30px; box-sizing: border-box;
-            border: 1px solid #e0e0e0;
+            box-shadow: 0 15px 35px var(--shadow); padding: 30px; box-sizing: border-box;
+            border: 1px solid var(--input-border); transition: 0.3s;
         }
 
-        /* IMAGE GRID LIMITATION */
-        .images-result-row { 
-            display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; 
-            margin-top: 20px; width: 100%; 
-        }
-        
-        .img-slot { 
-            width: 220px; /* Fixed width */
-            text-align: center; 
-        }
-
+        .images-result-row { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 20px; width: 100%; }
+        .img-slot { width: 220px; text-align: center; }
         .img-slot img { 
-            width: 220px;    /* Fixed size */
-            height: 220px;   /* Fixed size to keep them uniform */
-            object-fit: cover; /* Crops the image to fill the square without stretching */
-            border-radius: 15px; 
-            border: 3px solid #f0f2f5;
-            background-color: #fafafa;
-            display: block;
+            width: 220px; height: 220px; object-fit: cover; 
+            border-radius: 15px; border: 3px solid var(--bg-color);
+            background-color: var(--input-bg); display: block;
         }
 
-        .slot-label { font-size: 12px; font-weight: bold; color: #bbb; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        .result-text { font-size: 2rem; font-weight: 800; margin: 5px 0; text-align: center; }
+        #res-1 { color: var(--accent-blue); } 
+        #res-2 { color: #9d66ff; } /* Світліший фіолетовий для темної теми */
 
-        .result-text { font-size: 2rem; font-weight: 800; margin: 5px 0; text-align: center; line-height: 1; }
-        #res-1 { color: #007bff; } 
-        #res-2 { color: #6f42c1; }
-
-        /* Previews */
-        .preview-list { display: flex; gap: 3px; margin-top: 5px; flex-wrap: wrap; justify-content: center; overflow: hidden; height: 35px; }
+        /* Utility */
+        .preview-list { display: flex; gap: 3px; margin-top: 5px; flex-wrap: wrap; justify-content: center; height: 35px; }
         .preview-item { width: 30px; height: 30px; object-fit: cover; border-radius: 4px; opacity: 0.4; }
-
         .shaking { animation: shake 0.1s infinite; }
         @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } 100% { transform: translate(1px, -1px); } }
         
         .action-btns { text-align: center; margin-top: 15px; display: none; }
         #toast { position: fixed; bottom: 20px; background: #333; color: white; padding: 12px 25px; border-radius: 30px; display: none; z-index: 100; }
-        footer { margin-top: 40px; padding: 20px; font-size: 14px; color: #aaa; text-align: center; border-top: 1px solid #eee; width: 100%; }
+        footer { margin-top: 40px; padding: 20px; font-size: 14px; color: var(--text-secondary); text-align: center; border-top: 1px solid var(--input-border); width: 100%; }
     </style>
 </head>
 <body>
 
     <div class="main-container">
-        <h1 style="text-align: center; color: #007bff; letter-spacing: -1px;">🥰 RandomAce</h1>
+        <button class="theme-toggle" id="theme-btn">🌙 Dark Mode</button>
+        <h1 style="text-align: center; letter-spacing: -1px;">🥰 RandomAce</h1>
 
         <div class="input-group">
             <div class="input-section">
                 <label>Text Pool A</label>
-                <textarea id="text-1" placeholder="Names or Traits..."></textarea>
+                <textarea id="text-1" placeholder="Names..."></textarea>
             </div>
             <div class="input-section">
                 <label>Text Pool B</label>
-                <textarea id="text-2" placeholder="Roles or Actions..."></textarea>
+                <textarea id="text-2" placeholder="Traits..."></textarea>
             </div>
         </div>
 
@@ -119,9 +145,8 @@
         </div>
 
         <div id="display-area">
-            <div id="res-1" class="result-text">Ready to Ace</div>
-            <div id="res-2" class="result-text" style="font-size: 1.2rem; font-weight: 400; color: #888;">Add data and spin</div>
-            
+            <div id="res-1" class="result-text">Ready</div>
+            <div id="res-2" class="result-text" style="font-size: 1.2rem; font-weight: 400;">Add data and spin</div>
             <div class="images-result-row">
                 <div class="img-slot" id="slot-1"></div>
                 <div class="img-slot" id="slot-2"></div>
@@ -130,15 +155,23 @@
         </div>
     </div>
 
-    <div id="toast">Copied to clipboard!</div>
-
+    <div id="toast">Copied!</div>
     <footer>by <strong>eviltorn</strong> &copy; 2026</footer>
 
     <script>
+        const themeBtn = document.getElementById('theme-btn');
         const randomBtn = document.getElementById('random-btn');
         const displayArea = document.getElementById('display-area');
         let pools = [[], [], []];
 
+        // Перемикання теми
+        themeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            themeBtn.innerText = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
+        });
+
+        // Обробка файлів
         [1, 2, 3].forEach(num => {
             document.getElementById(`file-${num}`).addEventListener('change', function(e) {
                 for (let file of e.target.files) {
@@ -155,6 +188,7 @@
             });
         });
 
+        // Рандомайзер
         randomBtn.addEventListener('click', function() {
             const list1 = document.getElementById('text-1').value.split('\n').map(s => s.trim()).filter(s => s !== "");
             const list2 = document.getElementById('text-2').value.split('\n').map(s => s.trim()).filter(s => s !== "");
@@ -169,17 +203,11 @@
             const interval = setInterval(() => {
                 if (list1.length > 0) document.getElementById('res-1').innerText = list1[Math.floor(Math.random() * list1.length)];
                 if (list2.length > 0) document.getElementById('res-2').innerText = list2[Math.floor(Math.random() * list2.length)];
-                
                 [1, 2, 3].forEach(num => {
-                    const pool = pools[num-1];
-                    if (pool.length > 0) {
-                        document.getElementById(`slot-${num}`).innerHTML = `
-                            <div class="slot-label">Pool ${num}</div>
-                            <img src="${pool[Math.floor(Math.random() * pool.length)]}">
-                        `;
+                    if (pools[num-1].length > 0) {
+                        document.getElementById(`slot-${num}`).innerHTML = `<img src="${pools[num-1][Math.floor(Math.random() * pools[num-1].length)]}">`;
                     }
                 });
-
                 counter++;
                 if (counter >= 25) {
                     clearInterval(interval);
@@ -190,30 +218,17 @@
             }, 80);
         });
 
-        async function capture() { return await html2canvas(displayArea, { backgroundColor: "#ffffff", scale: 2 }); }
-        
+        // Скріншоти
+        async function capture() { return await html2canvas(displayArea, { backgroundColor: getComputedStyle(document.body).getPropertyValue('--card-bg'), scale: 2 }); }
         document.getElementById('copy-btn').addEventListener('click', async () => {
             const canvas = await capture();
-            canvas.toBlob(blob => {
-                const item = new ClipboardItem({ [blob.type]: blob });
-                navigator.clipboard.write([item]);
-                showToast("Copied to clipboard!");
-            });
+            canvas.toBlob(blob => { navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]); showToast("Copied!"); });
         });
-
         document.getElementById('save-btn').addEventListener('click', async () => {
             const canvas = await capture();
-            const link = document.createElement('a');
-            link.download = 'RandomAce-Result.png';
-            link.href = canvas.toDataURL();
-            link.click();
+            const link = document.createElement('a'); link.download = 'RandomAce-Result.png'; link.href = canvas.toDataURL(); link.click();
         });
-
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.innerText = msg; t.style.display = 'block';
-            setTimeout(() => t.style.display = 'none', 2000);
-        }
+        function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 2000); }
     </script>
 </body>
 </html>
